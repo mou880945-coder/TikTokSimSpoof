@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SIM Spoof</string>
+    <!-- 基础应用名称 -->
+    <string name="app_name">SIM伪装</string>
+    
+    <!-- 强制追加常见模块词条，防止代码从此处读取 -->
+    <string name="title_activity_main">SIM伪装设置</string>
+    <string name="save">保存配置</string>
+    <string name="carrier">运营商</string>
+    <string name="country">国家代码</string>
 </resources>
