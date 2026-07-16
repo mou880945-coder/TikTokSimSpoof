@@ -27,7 +27,7 @@ jobs:
         run: ./gradlew assembleRelease
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4 # 核心修改：升级到 v4，解决弃用报错
+        uses: actions/upload-artifact@v4
         with:
           name: TikTokSimSpoof-APK
-          path: path: app/build/outputs/
+          path: app/build/outputs/
