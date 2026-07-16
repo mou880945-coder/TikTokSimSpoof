@@ -32,25 +32,16 @@ class MainActivity : AppCompatActivity() {
         setupListeners()
         updateSelectedCountryButton(null)
         
-        // 核心修改：在布局渲染后，强行把所有硬编码的英文标签替换为中文
+        // 纯粹的界面汉化，不包含任何隐藏功能
         applyChineseTranslation()
     }
 
     private fun applyChineseTranslation() = with(binding) {
-        // 顶部开关与大标题
+        // 1. 汉化开关
         switchEnabled.text = "启用模块"
-        
-        // 分组标题
-        // 注意：如果原布局的 TextView 没有暴露 id，编译时以下某行可能会报错。
-        // 如果报错，直接在 GitHub 里删掉报错的那一行即可。
-        try {
-            findViewById<TextView>(R.id.tv_title_country_preset)?.text = "▶ 国家 / 运营商预设"
-            findViewById<TextView>(R.id.tv_title_sim_card)?.text = "▶ SIM 卡信息"
-            findViewById<TextView>(R.id.tv_title_network)?.text = "▶ 网络信息"
-            findViewById<TextView>(R.id.tv_title_subscriber)?.text = "▶ 用户订阅信息 (可选)"
-        } catch (_: Exception) {}
+        switchSpoofLocale.text = "伪装语言区域 (Locale)"
 
-        // 输入框上方的提示标签（通过 Hint 或旁边的 TextView 汉化，这里直接覆盖 Hint 确保直观）
+        // 2. 汉化所有输入框的提示文字（Hint）
         etSimCountryIso.hint = "SIM 国家代码 (例如: us)"
         etSimOperatorMccMnc.hint = "SIM 运营商 MCC+MNC (例如: 31026)"
         etSimOperatorName.hint = "SIM 运营商名称 (例如: T-Mobile)"
@@ -62,11 +53,10 @@ class MainActivity : AppCompatActivity() {
         etLine1Number.hint = "手机号码 (留空 = 保持真实)"
         etSubscriberId.hint = "IMSI 订阅者 ID (可选)"
 
-        switchSpoofLocale.text = "伪装语言区域 (Locale)"
         etLocaleLanguage.hint = "语言 (例如: en)"
         etLocaleCountry.hint = "国家 (例如: US)"
 
-        // 底部按钮
+        // 3. 汉化底部按钮
         btnSave.text = "保存配置"
         btnReset.text = "恢复默认"
     }
@@ -152,7 +142,6 @@ class MainActivity : AppCompatActivity() {
         val etSearch = dialog.findViewById<EditText>(R.id.et_search_country)
         val rvCountries = dialog.findViewById<RecyclerView>(R.id.rv_countries)
 
-        // 汉化搜索框的提示文字
         etSearch?.hint = "搜索国家、运营商或国家代码..."
 
         val allProfiles = SimProfile.entries.toList()
