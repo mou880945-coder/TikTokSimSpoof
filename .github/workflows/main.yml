@@ -2,19 +2,19 @@ name: Android CI (Build APK)
 
 on:
   push:
-    branches: [ "main" ] # 只有代码推送到 main 分支时触发
-  workflow_dispatch: # 允许你手动点击按钮触发编译
+    branches: [ "main" ]
+  workflow_dispatch:
 
 jobs:
   build:
-    runs-on: ubuntu-latest # 使用 Linux 服务器编译
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # 升级到 v4
 
-      - name: Set up JDK 17 # 设置 Java 环境
-        uses: actions/setup-java@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4 # 升级到 v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -23,11 +23,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle # 开始编译
+      - name: Build with Gradle
         run: ./gradlew assembleRelease
 
-      - name: Upload APK # 上传编译好的 APK
-        uses: actions/upload-artifact@v3
+      - name: Upload APK
+        uses: actions/upload-artifact@v4 # 核心修改：升级到 v4，解决弃用报错
         with:
-          name: TikTokSimSpoof-APK # 压缩包的名字
-          path: app/build/outputs/apk/release/app-release.apk # APK 的位置
+          name: TikTokSimSpoof-APK
+          path: app/build/outputs/apk/release/app-release.apk
