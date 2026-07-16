@@ -121,7 +121,7 @@ class MainHook : IXposedHookLoadPackage {
         // isNetworkRoaming()
         hookReturn(cl, tm, "isNetworkRoaming") { false }
 
-        XposedBridge.log("$TAG: TelephonyManager hooks installed")
+        XposedBridge.log("$TAG: TelephonyManager hooks installed (with Dual SIM support)")
     }
 
     // ──────────────────────────────────────────────────────────────────────────
@@ -161,29 +161,40 @@ class MainHook : IXposedHookLoadPackage {
     }
 
     // ──────────────────────────────────────────────────────────────────────────
-    //  Helpers
+    //  Helpers (Modified for Dual SIM compatibility)
     // ──────────────────────────────────────────────────────────────────────────
 
     /**
-     * Hook a no-arg method and replace its return value.
-     * Crashes loudly if method is not found (use hookReturnSafe for optional APIs).
+     * Hook a method and replace its return value.
+     * Automatically attempts to hook both the no-arg version (Single SIM)
+     * and the Int-arg version (Dual SIM subId重载) to cover all bases.
      */
     private fun hookReturn(cl: ClassLoader, className: String, methodName: String, value: () -> Any?) {
+        val callback = object : XC_MethodHook() {
+            override fun afterHookedMethod(param: MethodHookParam) {
+                param.result = value()
+            }
+        }
+
+        // 1. Hook 无参数方法 (标准单卡)
         try {
-            XposedHelpers.findAndHookMethod(
-                className, cl, methodName,
-                object : XC_MethodHook() {
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        param.result = value()
-                    }
-                }
-            )
+            XposedHelpers.findAndHookMethod(className, cl, methodName, callback)
         } catch (e: XposedHelpers.ClassNotFoundError) {
             XposedBridge.log("$TAG: class not found — $className")
+            return
         } catch (e: NoSuchMethodError) {
-            XposedBridge.log("$TAG: method not found — $className.$methodName")
+            // 如果没找到无参方法，不直接崩溃，继续尝试 Hook 带参重载
         } catch (e: Throwable) {
-            XposedBridge.log("$TAG: hook error $className.$methodName — ${e.message}")
+            XposedBridge.log("$TAG: hook error [No-Arg] $className.$methodName — ${e.message}")
+        }
+
+        // 2. Hook 带 Int 参数的方法 (双卡重载方法，如 getSimCountryIso(int subId))
+        try {
+            XposedHelpers.findAndHookMethod(className, cl, methodName, Int::class.javaPrimitiveType, callback)
+        } catch (_: NoSuchMethodError) {
+            // 很多方法在老版本 Android 上可能没有双卡重载，找不到很正常，静默跳过
+        } catch (e: Throwable) {
+            XposedBridge.log("$TAG: hook error [Int-Arg] $className.$methodName — ${e.message}")
         }
     }
 
